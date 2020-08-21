@@ -36,7 +36,9 @@ stock_data_p = ts.pro_bar(api = pro, ts_code = stock_code, adj = 'qfq')
 # 688229	N博睿 所属板块有: 软件服务, 北京板块, 人工智能, 大数据,和 融资融券. 由于融资融券太普遍, 所以暂时不作为一个考察方向.
 # 下面读取 所属板块数据,并构筑network
 net1_name = '软件服务'
-net1 = pd.read_excel('G:/Jiang research/stock network/' +net1_name +   '.xlsx')
+net1 = pd.read_excel('./stock network/' +net1_name +   '.xlsx')
+print(net1)
+#%%
 # for mac
 #net1 = pd.read_excel('/Users/jiangsiyuan/Google 云端硬盘/量化交易开发/about late trading strategy/stock network/' +net1_name +   '.xlsx')
 #p(net1)
@@ -147,7 +149,7 @@ plt.show()
 import os
 #path_network = 'G:\Jiang research\stock network'
 # for mac
-path_network = '/Users/jiangsiyuan/Google 云端硬盘/量化交易开发/about late trading strategy/stock network'
+path_network = './stock network'
 files_network = os.listdir(path_network)
 #print(files_network)
 
@@ -155,11 +157,12 @@ files_network = os.listdir(path_network)
 netdata_dict = dict()
 # 在 network 的Excel 文件内容放进 netdata_dict
 for net_name in files_network :
-    net_one = pd.read_excel(path_network +'/' +net_name)
-    #print(net_one[:10])
-    net_name_dict = net_name.split('.')[0]
-    netdata_dict[net_name_dict] = net_one
-    #print(netdata_dict[net_name_dict].iloc[:10])
+    if net_name != '.DS_Store':
+        net_one = pd.read_excel(path_network +'/' +net_name)
+        #print(net_one[:10])
+        net_name_dict = net_name.split('.')[0]
+        netdata_dict[net_name_dict] = net_one
+        #print(netdata_dict[net_name_dict].iloc[:10])
 
 net_all = pd.DataFrame()
 for netname_one , netdata_one in netdata_dict.items() :
@@ -211,7 +214,7 @@ for node in G_stock :
                 color_map.append('blue')
             else :
                 one_pct_chg = stock_data_p.iloc[0]['pct_chg']
-                if float(one_pct_chg) > 5 :
+                if float(one_pct_chg) > 3 :
                     select_stocklist.append(stock_data_p['ts_code'].iloc[0])
                     color_map.append('red')
                 else :
@@ -227,7 +230,7 @@ plt.show()
 
 # %%
 # 获得发行日当天的全部股票的交易数据, 并改变上面每一只股票一查的算法
-launch_date = '20200813'
+launch_date = '20200817'
 all_stockdata = pd.DataFrame()
 for one_ts_code in basic['ts_code']:
     stock_data_p = ts.pro_bar(api = pro, ts_code = one_ts_code, start_date = launch_date, adj = 'qfq')
@@ -239,13 +242,13 @@ for one_ts_code in basic['ts_code']:
 
 print('len for all stockdata', len(all_stockdata))
 print('len for basic is:', len(basic))
-# %%
+all_stockdata.to_csv('./daily data/' +launch_date +'_stockdata.csv')
+
+#%%
 # 所有股票中 上涨大于5 的股票:
-rate_5 = len(all_stockdata[all_stockdata['pct_chg'] > 5])
-print('所有股票中 上涨大于5 的股票共:', rate_5)
-
-# %%
+num_then5 = len(all_stockdata[all_stockdata['pct_chg'] > 5])
+print('所有股票中 上涨大于5 的股票共:', num_then5)
 # 在 network 中: 即与新股有板块关联的中的 上涨大于 5 的股票
-len(set(select_stocklist))
-
+num_then5_network = len(set(select_stocklist))
+print('在 network 中占据所有上涨超过 5 的股票的比例:', num_then5_network/num_then5)
 # %%
